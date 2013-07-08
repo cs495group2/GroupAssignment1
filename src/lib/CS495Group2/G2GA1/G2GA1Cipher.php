@@ -59,7 +59,7 @@ class G2GA1Cipher
 /* Encryption Rounds
 ============================================================================= */
 
-    // Encryption - Round 1 - Stochastic plaintext mapping
+    // Encryption Round 1 - Stochastic plaintext mapping
     private function encRound1($plainText)
     {
         $orderedPairs = '';
@@ -69,7 +69,7 @@ class G2GA1Cipher
         return $orderedPairs;
     }
 
-    // Encryption - Round 2 - Coordinate encoding
+    // Encryption Round 2 - Coordinate encoding
     private function encRound2($orderedPairs)
     {
         $orderedPairsEncoded = '';
@@ -79,7 +79,7 @@ class G2GA1Cipher
         return $orderedPairsEncoded;
     }
 
-    // Encryption - Round 3 - Vigenère Cipher encryption
+    // Encryption Round 3 - Vigenère Cipher encryption
     private function encRound3($orderedPairsEncoded, $k3)
     {
         // Process key
@@ -87,7 +87,7 @@ class G2GA1Cipher
             $key[$i] = ord(strtoupper(substr($k3,$i,1)))-65;
         }
 
-        // Process plaintext
+        // Process encoded ordered pairs string
         $row = 0;
         for ($i = 0; $i < strlen($orderedPairsEncoded); $i++) {
             // Move to the next row when index is a multiple of the key
@@ -119,7 +119,7 @@ class G2GA1Cipher
 /* Decryption Rounds
 ============================================================================= */
 
-    // Vigenère Cipher decryption
+    // Decryption Round 1 - Vigenère Cipher decryption
     private function decRound1($cipherText, $k3)
     {
         // Process key
@@ -154,7 +154,7 @@ class G2GA1Cipher
         return $orderedPairsEncoded;
     }
 
-    // Coordinate decoding
+    // Decryption Round 2 - Coordinate decoding
     private function decRound2($orderedPairsEncoded)
     {
         $orderedPairs = '';
@@ -164,7 +164,7 @@ class G2GA1Cipher
         return $orderedPairs;
     }
 
-    // Plaintext lookup
+    // Decryption Round 3 - Plaintext lookup
     private function decRound3($orderedPairs)
     {
         $plainText = '';
