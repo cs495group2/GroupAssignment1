@@ -85,6 +85,7 @@ class G2GA1Cipher
         // Process key
         for ($i = 0; $i < strlen($k3); $i++) {
             $key[$i] = ord(strtoupper(substr($k3,$i,1)))-65;
+            $key[$i] = ord(strtoupper(substr($k3, $i, 1))) - 65;
         }
 
         // Process encoded ordered pairs string
@@ -97,6 +98,7 @@ class G2GA1Cipher
             // Store each plaintext character in matrix entry in decimal format
             $plainTextMatrix[$row][] = ord(
                 strtoupper(substr($orderedPairsEncoded,$i,1))
+                strtoupper(substr($orderedPairsEncoded, $i, 1))
             )-65;
         }
 
@@ -109,6 +111,7 @@ class G2GA1Cipher
                     $cipherCharDec += self::MODULUS;
                 }
                 $cipherText .= chr($cipherCharDec+65);
+                $cipherText .= chr($cipherCharDec + 65);
             }
         }
 
@@ -125,6 +128,7 @@ class G2GA1Cipher
         // Process key
         for ($i = 0; $i < strlen($k3); $i++) {
             $key[$i] = ord(strtoupper(substr($k3,$i,1)))-65;
+            $key[$i] = ord(strtoupper(substr($k3, $i, 1))) - 65;
         }
 
         // Process ciphertext
@@ -148,6 +152,7 @@ class G2GA1Cipher
                     $plainCharDec += self::MODULUS;
                 }
                 $orderedPairsEncoded .= chr($plainCharDec+65);
+                $orderedPairsEncoded .= chr($plainCharDec + 65);
             }
         }
 
