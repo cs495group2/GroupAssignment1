@@ -141,6 +141,7 @@ class G2GA1Cipher
             }
             $cipherTextMatrix[$row][] = ord(
                 strtoupper(substr($cipherText,$i,1))
+                strtoupper(substr($cipherText, $i, 1))
             )-65;
         }
 
