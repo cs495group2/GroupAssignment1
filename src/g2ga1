@@ -4,4 +4,179 @@ require_once('lib/CS495Group2/G2GA1/G2GA1Cipher.php');
 
 use CS495Group2\G2GA1\G2GA1Cipher;
 
+// Verify correct number of CLI arguments
+if ($argc != 6) {
+    if ($argc == 1 || in_array(
+        $argv[1],
+        array('--help', '-help', '-h', '-?'))) {
+        printUsage();
+    } else {
+        printUsageErr('Six arguments are required.');
+    }
+} else {
+    // Hide CLI arguments (including keys) from process title
+    setTitle('g2ga1');
+
+    // Run cipher
+    startCipher($argv);
+}
+
+
+/* Main g2ga1 functions
+============================================================================= */
+
+function startCipher($argv)
+{
+    // Perform quick sanity check on args
+    if (processArguments($argv)) {
+
+        // Print g2ga1 description
+        printDesc();
+
+        // Open text file
+        if (!$textFile = fopen($argv[1], 'r')) {
+            echo 'Unable to open file: ' . $argv[1] . PHP_EOL;
+            exit(1);
+        }
+
+        // Store text file contents in string
+        while (($textBuffer = fgets($textFile)) !== false) {
+            $text .= $textBuffer;
+        }
+
+        // Open k1 file
+        if (!$k1File = fopen($argv[2], 'r')) {
+            echo 'Unable to open file: ' . $argv[2] . PHP_EOL;
+            exit(1);
+        }
+
+        // Store k1 file contents in string
+        while (($k1Buffer = fgets($k1File)) !== false) {
+            $k1 .= $k1Buffer;
+        }
+
+        // Open k2 file
+        $k2 = hexdec($argv[3]);
+
+        // Open k3 file
+        $k3 = $argv[4];
+
+        // Set cipher mode
+        $mode = strtoupper($argv[5]);
+
+        // Encrypt/decrypt based on mode
+        if ($mode == 'E') {
+            encrypt($text, $k1, $k2, $k3);
+        } else {
+            decrypt($text, $k1, $k2, $k3);
+        }
+
+        echo 'Done.' . PHP_EOL;
+
+        fclose($textFile);
+        fclose($k1File);
+    }
+}
+
+function encrypt($plainText, $k1, $k2, $k3)
+{
+    setTitle('g2ga1 - encrypting');
+
+    echo 'Encrypting ...' . PHP_EOL;
+
+    $g2ga1 = new G2GA1Cipher();
+    echo $g2ga1->encrypt($plainText, $k1, $k2, $k3);
+}
+
+function decrypt($cipherText, $k1, $k2, $k3)
+{
+    setTitle('g2ga1 - decrypting');
+
+    echo 'Decrypting ...' . PHP_EOL;
+
+    $g2ga1 = new G2GA1Cipher();
+    echo $g2ga1->decrypt($cipherText, $k1, $k2, $k3);
+}
+
+
+/* Helper functions
+============================================================================= */
+
+function printUsage()
+{
+    printDesc();
+?>
+Usage: g2ga1 <message_file> <k1_file> <k2> <k3> <mode>
+
+  <message_file>   The text file to be encrypted/decrypted.
+  <k1_file>        The text file that contains the k1 key.
+  <k2>             A numerical (base 16) value for the k2 key.
+  <k3>             A string containing the passphrase for the k3 key.
+  <mode>           Either 'E' for encryption, or 'D' for decryption.
+
+Example:
+g2ga1 /path/to/message /path/to/k1 C0FFEE "apassphrase" E
+
+<?php
+}
+
+function printUsageErr($error)
+{
+    printUsage();
+    echo 'Error: ' . $error . PHP_EOL;
+}
+
+function printDesc()
+{
+?>
+
+CS 495 - Introduction to Cryptography
+Group 2 - Group Assignment 1
+G2GA1 Cipher Implementation
+
+<?php
+}
+
+function setTitle($title)
+{
+    $version = explode('.', phpversion());
+
+    // if PHP version is >= 5.5 then set process title
+    if ($version[0] >= 5 && $version[1] >= 5) {
+        if (!cli_set_process_title($title)) {
+            echo 'Unable to set process title for g2ga1 script' . PHP_EOL;
+            exit(1);
+        }
+    }
+}
+
+// Verify sanity of positional arguments
+function processArguments($argv)
+{
+    $argsValid = true;
+
+    // Verify that both text and k1 files exits
+    if (!file_exists($argv[1])) {
+        printUsageErr('File ' . $argv[1] . ' does not exist.');
+        $argsValid = false;
+    } else if (!file_exists($argv[2])) {
+        printUsageErr('File ' . $argv[2] . ' does not exist.');
+        $argsValid = false;
+    // Verify k2 is > 0
+    } else if (hexdec($argv[3]) < 1) {
+        printUsageErr('k2 must be greater than 0 (base 16.)');
+        $argsValid = false;
+    // Verify that k3 is a string with only English letters
+    } else if (!ctype_alpha($argv[4])) {
+        printUsageErr('k3 must a string with only English letters '
+            . '(no punctuation.)');
+        $argsValid = false;
+    // Verify that the mode is either 'E' or 'D'
+    } else if (strtoupper($argv[5]) != 'E' && strtoupper($argv[5]) != 'D')  {
+        printUsageErr('Mode must be either \'E\' or \'D\'');
+        $argsValid = false;
+    }
+
+    return $argsValid;
+}
 ?>
