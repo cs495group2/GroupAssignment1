@@ -74,7 +74,95 @@ class G2GA1Cipher
     {
         $orderedPairsEncoded = '';
 
-        // TODO: Code me!
+        $len = strlen($orderedPairs);
+         for($i=0; $i<=$len; $i++){
+             // Evaluate each character in the string of ordered pairs
+             switch ($orderedPairs[$i]){
+                // Convert 0-9 to letters A-J
+                case "0":
+                    $orderedPairsEncoded = $orderedPairsEncoded."A";
+                    break;
+                case "1":
+                    $orderedPairsEncoded = $orderedPairsEncoded."B";
+                    break;
+                case "2":
+                    $orderedPairsEncoded = $orderedPairsEncoded."C";
+                    break;
+                case "3":
+                    $orderedPairsEncoded = $orderedPairsEncoded."D";
+                    break;
+                case "4":
+                    $orderedPairsEncoded = $orderedPairsEncoded."E";
+                    break;
+                case "5":
+                    $orderedPairsEncoded = $orderedPairsEncoded."F";
+                    break;
+                case "6":
+                    $orderedPairsEncoded = $orderedPairsEncoded."G";
+                    break;
+                case "7":
+                    $orderedPairsEncoded = $orderedPairsEncoded."H";
+                    break;
+                case "8":
+                    $orderedPairsEncoded = $orderedPairsEncoded."I";
+                    break;
+                case "9":
+                    $orderedPairsEncoded = $orderedPairsEncoded."J";
+                    break;
+                case ",":
+                    // Convert commas to random letters K-Z
+                    switch (rand(10, 25)){
+                        case "10":
+                            $orderedPairsEncoded = $orderedPairsEncoded."K";
+                            break;
+                        case "11":
+                            $orderedPairsEncoded = $orderedPairsEncoded."L";
+                            break;
+                        case "12":
+                            $orderedPairsEncoded = $orderedPairsEncoded."M";
+                            break;
+                        case "13":
+                            $orderedPairsEncoded = $orderedPairsEncoded."N";
+                            break;
+                        case "14":
+                            $orderedPairsEncoded = $orderedPairsEncoded."O";
+                            break;
+                        case "15":
+                            $orderedPairsEncoded = $orderedPairsEncoded."P";
+                            break;
+                        case "16":
+                            $orderedPairsEncoded = $orderedPairsEncoded."Q";
+                            break;
+                        case "17":
+                            $orderedPairsEncoded = $orderedPairsEncoded."R";
+                            break;
+                        case "18":
+                            $orderedPairsEncoded = $orderedPairsEncoded."S";
+                            break;
+                        case "19":
+                            $orderedPairsEncoded = $orderedPairsEncoded."T";
+                            break;
+                        case "20":
+                            $orderedPairsEncoded = $orderedPairsEncoded."U";
+                            break;
+                        case "21":
+                            $orderedPairsEncoded = $orderedPairsEncoded."V";
+                            break;
+                        case "22":
+                            $orderedPairsEncoded = $orderedPairsEncoded."W";
+                            break;
+                        case "23":
+                            $orderedPairsEncoded = $orderedPairsEncoded."X";
+                            break;
+                        case "24":
+                            $orderedPairsEncoded = $orderedPairsEncoded."Y";
+                            break;
+                        case "25":
+                            $orderedPairsEncoded = $orderedPairsEncoded."Z";
+                            break;
+                        }
+                }
+            }
 
         return $orderedPairsEncoded;
     }
@@ -159,7 +247,47 @@ class G2GA1Cipher
     {
         $orderedPairs = '';
 
-        // TODO: Code me!
+        $len = strlen($orderedPairsEncoded);
+        for($i=0; $i<=$len; $i++){
+            // Evaluate each lettter in the encoded string
+            switch ($orderedPairsEncoded[$i]){
+                // Convert letters A-J to numerals 0-9
+                case "A":
+                    $orderedPairs = $orderedPairs."0";
+                    break;
+                case "B":
+                    $orderedPairs = $orderedPairs."1";
+                    break;
+                case "C":
+                    $orderedPairs = $orderedPairs."2";
+                    break;
+                case "D":
+                    $orderedPairs = $orderedPairs."3";
+                    break;
+                case "E":
+                    $orderedPairs = $orderedPairs."4";
+                    break;
+                case "F":
+                    $orderedPairs = $orderedPairs."5";
+                    break;
+                case "G":
+                    $orderedPairs = $orderedPairs."6";
+                    break;
+                case "H":
+                    $orderedPairs = $orderedPairs."7";
+                    break;
+                case "I":
+                    $orderedPairs = $orderedPairs."8";
+                    break;
+                case "J":
+                    $orderedPairs = $orderedPairs."9";
+                    break;
+                // Convert any other letter to a comma
+                default:
+                    $orderedPairs = $orderedPairs.",";
+                    break;
+            }
+          }
 
         return $orderedPairs;
     }
