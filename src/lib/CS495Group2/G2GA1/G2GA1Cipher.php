@@ -51,8 +51,9 @@ class G2GA1Cipher
     // G2GA1 key derivation function
     private function kdf($k1, $k2)
     {
-        // TODO: Code me!
         // Store modified k1 key in $this->matrix
+
+        // TODO: Code me!
     }
 
 
