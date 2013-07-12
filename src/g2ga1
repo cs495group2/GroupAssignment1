@@ -169,8 +169,8 @@ function processArguments($argv)
         printUsageErr('k2 must be greater than 0 (base 16.)');
         $argsValid = false;
     // Verify that k3 is not empty
-    } else if (strlen($argv[4]) < 1) {
-        printUsageErr('k3 must a string with at least one letter.');
+    } else if (!ctype_alpha($argv[4])) {
+        printUsageErr('k3 must a string containing only English letters.');
         $argsValid = false;
     // Verify that the mode is either 'E' or 'D'
     } else if (strtoupper($argv[5]) != 'E' && strtoupper($argv[5]) != 'D')  {
