@@ -51,9 +51,9 @@ class G2GA1Cipher
     // G2GA1 key derivation function
     private function kdf($k1, $k2)
     {
-        // Store modified k1 key in $this->matrix
+        $columns = $k2 % strlen($k1);
 
-        // TODO: Code me!
+        //TODO: Code me!
     }
 
 
@@ -298,7 +298,16 @@ class G2GA1Cipher
     {
         $plainText = '';
 
-        // TODO: Code me!
+        // TODO: refactor/test
+        /*$len=strlen($orderedPairs);
+        for($i=0; $i<=$key1; $i++){
+            for($j=0; $j<=$Matrix[$i][$j].length; $j++){
+                for($k=0; $k<=$Matrix[$j][$k].length; $k++){        
+                    $pick=$Matrix[$orderedPairs][$i];
+                    $plainText=$plainText+$pick;
+                }
+            }
+        }*/
 
         return $plainText;
     }
