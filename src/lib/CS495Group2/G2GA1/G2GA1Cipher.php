@@ -51,9 +51,14 @@ class G2GA1Cipher
     // G2GA1 key derivation function
     private function kdf($k1, $k2)
     {
-        $columns = $k2 % strlen($k1);
+        $numbColumns = $k2 % strlen($k1);
+        $k1StrMatrix = str_split($k1, $numbColumns);
 
-        // TODO: Code me!
+        foreach ($k1StrMatrix as $row) {
+            /* Split each row from k1StrMatrix into individual column entries
+                and store in the matrix array */
+            $this->matrix[] = str_split($row);
+        }
     }
 
 
@@ -63,9 +68,27 @@ class G2GA1Cipher
     // Encryption Round 1 - Stochastic plaintext mapping
     private function encRound1($plainText)
     {
+        $plainTextVector = str_split($plainText);
+        $occurenceMatrix[][] = array();
+        $nthOccurrence = mt_rand(1, mt_getrandmax());
         $orderedPairs = '';
 
-        // TODO: Code me!
+        // Cycle through rows of k1 matrix
+        for ($i = 0; $i < count($this->matrix); $i++) {
+            // Cycle through columns of k1 matrix
+            for ($j = 0; $j < count($this->matrix[$i]); $j++) {
+                // Cycle through plaintext looking for occurence
+                for ($k = 0; $k < count($plainTextVector); $k++) {
+
+                    // TODO: Finish plaintext letter matching/storage
+                    if ($plainTextVector[$k] == $this->matrix[$i][$j]) {
+                        // Ordered pair => $i . ',' . $j;
+                    }
+                }
+            }
+        }
+
+        ksort($occurenceMatrix);
 
         return $orderedPairs;
     }
@@ -172,21 +195,21 @@ class G2GA1Cipher
     private function encRound3($orderedPairsEncoded, $k3)
     {
         // Process key
-        for ($i = 0; $i < strlen($k3); $i++) {
-            $key[$i] = ord(strtoupper(substr($k3, $i, 1))) - 65;
+        $k3Vector = str_split($k3);
+        foreach ($k3Vector as $entry) {
+            $key[] = ord($entry) - 65;
         }
 
         // Process encoded ordered pairs string
+        $orderedPairsEncodedVector = str_split($orderedPairsEncoded);
         $row = 0;
-        for ($i = 0; $i < strlen($orderedPairsEncoded); $i++) {
+        for ($i = 0; $i < count($orderedPairsEncodedVector); $i++) {
             // Move to the next row when index is a multiple of the key
             if ($i > 0 && $i % count($key) == 0) {
                 ++$row;
             }
             // Store each plaintext character in matrix entry in decimal format
-            $plainTextMatrix[$row][] = ord(
-                strtoupper(substr($orderedPairsEncoded, $i, 1))
-            )-65;
+            $plainTextMatrix[$row][] = ord($orderedPairsEncodedVector[$i]) - 65;
         }
 
         // Encrypt plaintext
@@ -212,25 +235,26 @@ class G2GA1Cipher
     private function decRound1($cipherText, $k3)
     {
         // Process key
-        for ($i = 0; $i < strlen($k3); $i++) {
-            $key[$i] = ord(strtoupper(substr($k3, $i, 1))) - 65;
+        $k3Vector = str_split($k3);
+        foreach ($k3Vector as $entry) {
+            $key[] = ord($entry) - 65;
         }
 
         // Process ciphertext
+        $cipherTextVector = str_split($cipherText);
         $row = 0;
-        for ($i = 0; $i < strlen($cipherText); $i++)
-        {
-            if ($i > 0 && $i % count($key) == 0)
-            {
+        for ($i = 0; $i < count($cipherTextVector); $i++) {
+            // Move to the next row when index is a multiple of the key
+            if ($i > 0 && $i % count($key) == 0) {
                 ++$row;
             }
-            $cipherTextMatrix[$row][] = ord(
-                strtoupper(substr($cipherText, $i, 1))
-            )-65;
+            // Store each ciphertext character in matrix entry in decimal format
+            $orderedPairsEncodedEntrypedMatrix[$row][] = 
+                ord($cipherTextVector[$i]) - 65;
         }
 
-        // Decrypt ciphertext
-        foreach ($cipherTextMatrix as $column) {
+        // Decrypt ciphertext (ordered pairs encoded encrypted)
+        foreach ($orderedPairsEncodedEntrypedMatrix as $column) {
             for ($i = 0; $i < count($column); $i++) {
                 $plainCharDec = ($column[$i] - $key[$i]) % self::MODULUS;
                 while ($plainCharDec < 0) {

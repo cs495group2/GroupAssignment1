@@ -74,7 +74,7 @@ function startCipher($argv)
         decrypt($text, $k1, $k2, $k3);
     }
 
-    echo 'Done.' . PHP_EOL;
+    echo PHP_EOL . 'Done.' . PHP_EOL;
 
     fclose($textFile);
     fclose($k1File);
@@ -85,10 +85,10 @@ function encrypt($plainText, $k1, $k2, $k3)
     setTitle('g2ga1 - encrypting');
     printDesc();
 
-    echo 'Encrypting ...' . PHP_EOL;
+    echo 'Criphertext: ' . PHP_EOL;
 
     $g2ga1 = new G2GA1Cipher();
-    echo $g2ga1->encrypt($plainText, $k1, $k2, $k3);
+    echo $g2ga1->encrypt($plainText, $k1, $k2, $k3) . PHP_EOL;
 }
 
 function decrypt($cipherText, $k1, $k2, $k3)
@@ -96,10 +96,10 @@ function decrypt($cipherText, $k1, $k2, $k3)
     setTitle('g2ga1 - decrypting');
     printDesc();
 
-    echo 'Decrypting ...' . PHP_EOL;
+    echo 'Plaintext: ' . PHP_EOL;
 
     $g2ga1 = new G2GA1Cipher();
-    echo $g2ga1->decrypt($cipherText, $k1, $k2, $k3);
+    echo $g2ga1->decrypt($cipherText, $k1, $k2, $k3) . PHP_EOL;
 }
 
 
@@ -118,8 +118,12 @@ Usage: g2ga1 <message_file> <k1_file> <k2> <k3> <mode>
   <k3>             A string containing the letters for the k3 key.
   <mode>           Either 'E' for encryption, or 'D' for decryption.
 
-Example:
-g2ga1 /path/to/message /path/to/k1 C0FFEE SECRET E
+Examples:
+ To encrypt:
+  g2ga1 /path/to/message /path/to/k1 C015 K3SECRET E
+
+ To decrypt:
+  g2ga1 /path/to/message /path/to/k1 C015 K3SECRET D
 
 <?php
 }
@@ -162,7 +166,7 @@ function verifyArgs($argv)
         printUsageErr('File ' . $argv[2] . ' does not exist.');
 
     // Verify k2 is valid hexadecimal value > 0   
-    if (preg_match('/[^A-F0-9]/i', $argv[3]) || hexdec($argv[3]) < 1)
+    if (hexdec($argv[3]) < 1 || preg_match('/[^A-Fa-f0-9]/', $argv[3]))
         printUsageErr('k2 must be a hexadeciaml value greater than 0.');
 
     // Verify k3's length > 0, prevents empty string
@@ -170,7 +174,7 @@ function verifyArgs($argv)
         printUsageErr('k3 must contain at least one letter.');
 
     // Verify that the mode is either 'E' or 'D'
-    if (preg_match('/[^ED]/i', $argv[5]) || strlen($argv[5]) > 1)
+    if (strlen($argv[5]) > 1 || preg_match('/[^ED]/', $argv[5]))
         printUsageErr('Mode must be either \'E\' or \'D\'.');
 }
 
