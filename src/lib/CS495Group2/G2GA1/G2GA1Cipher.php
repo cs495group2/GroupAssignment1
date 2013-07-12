@@ -53,7 +53,7 @@ class G2GA1Cipher
     {
         $columns = $k2 % strlen($k1);
 
-        //TODO: Code me!
+        // TODO: Code me!
     }
 
 
@@ -299,6 +299,7 @@ class G2GA1Cipher
         $plainText = '';
 
         // TODO: refactor/test
+
         /*$len=strlen($orderedPairs);
         for($i=0; $i<=$key1; $i++){
             for($j=0; $j<=$Matrix[$i][$j].length; $j++){

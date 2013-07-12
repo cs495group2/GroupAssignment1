@@ -4,7 +4,9 @@ require_once('lib/CS495Group2/G2GA1/G2GA1Cipher.php');
 
 use CS495Group2\G2GA1\G2GA1Cipher;
 
-// Verify correct number of CLI arguments
+/* Verify arguments and start cipher
+============================================================================= */
+
 if ($argc != 6) {
     if ($argc == 1 || in_array(
         $argv[1],
@@ -17,6 +19,9 @@ if ($argc != 6) {
     // Hide CLI arguments (including keys) from process title
     setTitle('g2ga1');
 
+    // Perform quick sanity check on args
+    verifyArgs($argv);
+
     // Run cipher
     startCipher($argv);
 }
@@ -27,62 +32,58 @@ if ($argc != 6) {
 
 function startCipher($argv)
 {
-    // Perform quick sanity check on args
-    if (processArguments($argv)) {
-
-        // Print g2ga1 description
-        printDesc();
-
-        // Open text file
-        $textFile = fopen($argv[1], 'r');
-        if (!$textFile) {
-            echo 'Unable to open file: ' . $argv[1] . PHP_EOL;
-            exit(1);
-        }
-
-        // Store text file contents in string
-        while (($textBuffer = fgets($textFile)) !== false) {
-            $text .= $textBuffer;
-        }
-
-        // Open k1 file
-        $k1File = fopen($argv[2], 'r');
-        if (!$k1File) {
-            echo 'Unable to open file: ' . $argv[2] . PHP_EOL;
-            exit(1);
-        }
-
-        // Store k1 file contents in string
-        while (($k1Buffer = fgets($k1File)) !== false) {
-            $k1 .= $k1Buffer;
-        }
-
-        // Open k2 file
-        $k2 = hexdec($argv[3]);
-
-        // Open k3 file
-        $k3 = $argv[4];
-
-        // Set cipher mode
-        $mode = strtoupper($argv[5]);
-
-        // Encrypt/decrypt based on mode
-        if ($mode == 'E') {
-            encrypt($text, $k1, $k2, $k3);
-        } else {
-            decrypt($text, $k1, $k2, $k3);
-        }
-
-        echo 'Done.' . PHP_EOL;
-
-        fclose($textFile);
-        fclose($k1File);
+    // Open text file
+    $textFile = fopen($argv[1], 'r');
+    if (!$textFile) {
+        printUsageErr('Unable to open file: ' . $argv[1]);
     }
+
+    // Open k1 file
+    $k1File = fopen($argv[2], 'r');
+    if (!$k1File) {
+        printUsageErr('Unable to open file: ' . $argv[2]);
+    }
+
+    // Store text file contents in string
+    $text = '';
+    while (($textBuffer = fgets($textFile)) !== false) {
+        $text .= $textBuffer;
+    }
+    $text = sanitize($text);
+
+    // Store k1 key file contents in string
+    $k1 = '';
+    while (($k1Buffer = fgets($k1File)) !== false) {
+        $k1 .= $k1Buffer;
+    }
+    $k1 = sanitize($k1);
+
+    // Set k2 key
+    $k2 = hexdec($argv[3]);
+
+    // Set k3 key
+    $k3 = sanitize($argv[4]);
+
+    // Set cipher mode
+    $mode = sanitize($argv[5]);
+
+    // Encrypt/decrypt based on mode
+    if ($mode == 'E') {
+        encrypt($text, $k1, $k2, $k3);
+    } else {
+        decrypt($text, $k1, $k2, $k3);
+    }
+
+    echo 'Done.' . PHP_EOL;
+
+    fclose($textFile);
+    fclose($k1File);
 }
 
 function encrypt($plainText, $k1, $k2, $k3)
 {
     setTitle('g2ga1 - encrypting');
+    printDesc();
 
     echo 'Encrypting ...' . PHP_EOL;
 
@@ -93,6 +94,7 @@ function encrypt($plainText, $k1, $k2, $k3)
 function decrypt($cipherText, $k1, $k2, $k3)
 {
     setTitle('g2ga1 - decrypting');
+    printDesc();
 
     echo 'Decrypting ...' . PHP_EOL;
 
@@ -125,7 +127,7 @@ g2ga1 /path/to/message /path/to/k1 C0FFEE SECRET E
 function printUsageErr($error)
 {
     printUsage();
-    echo 'Error: ' . $error . PHP_EOL;
+    die('Error: ' . $error . PHP_EOL);
 }
 
 function printDesc()
@@ -143,41 +145,38 @@ function setTitle($title)
 {
     $version = explode('.', phpversion());
 
-    // if PHP version is >= 5.5 then set process title
+    // if PHP version is >= 5.5 then attempt to set process title
     if ($version[0] >= 5 && $version[1] >= 5) {
-        if (!cli_set_process_title($title)) {
-            echo 'Unable to set process title for g2ga1 script' . PHP_EOL;
-            exit(1);
-        }
+        cli_set_process_title($title);
     }
 }
 
-// Verify sanity of positional arguments
-function processArguments($argv)
+function verifyArgs($argv)
 {
-    $argsValid = true;
-
-    // Verify that both text and k1 files exits
-    if (!file_exists($argv[1])) {
+    // Verify text files exits
+    if (!file_exists($argv[1]))
         printUsageErr('File ' . $argv[1] . ' does not exist.');
-        $argsValid = false;
-    } else if (!file_exists($argv[2])) {
-        printUsageErr('File ' . $argv[2] . ' does not exist.');
-        $argsValid = false;
-    // Verify k2 is > 0
-    } else if (hexdec($argv[3]) < 1) {
-        printUsageErr('k2 must be greater than 0 (base 16.)');
-        $argsValid = false;
-    // Verify that k3 is not empty
-    } else if (!ctype_alpha($argv[4])) {
-        printUsageErr('k3 must a string containing only English letters.');
-        $argsValid = false;
-    // Verify that the mode is either 'E' or 'D'
-    } else if (strtoupper($argv[5]) != 'E' && strtoupper($argv[5]) != 'D')  {
-        printUsageErr('Mode must be either \'E\' or \'D\'');
-        $argsValid = false;
-    }
 
-    return $argsValid;
+    // Verify k1 files exits
+    if (!file_exists($argv[2]))
+        printUsageErr('File ' . $argv[2] . ' does not exist.');
+
+    // Verify k2 is valid hexadecimal value > 0   
+    if (preg_match('/[^A-F0-9]/i', $argv[3]) || hexdec($argv[3]) < 1)
+        printUsageErr('k2 must be a hexadeciaml value greater than 0.');
+
+    // Verify k3's length > 0, prevents empty string
+    if (!(strlen($argv[4]) > 0))
+        printUsageErr('k3 must contain at least one letter.');
+
+    // Verify that the mode is either 'E' or 'D'
+    if (preg_match('/[^ED]/i', $argv[5]) || strlen($argv[5]) > 1)
+        printUsageErr('Mode must be either \'E\' or \'D\'.');
+}
+
+// Remove all non English letters and convert to uppercase
+function sanitize($text)
+{
+    return strtoupper(preg_replace('/[^A-z]/', '', $text));
 }
 ?>
