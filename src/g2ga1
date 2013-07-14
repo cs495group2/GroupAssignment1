@@ -1,8 +1,12 @@
 #!/usr/bin/env php
 <?php
+ini_set('display_errors', '1');
+
+
 require_once('lib/CS495Group2/G2GA1/G2GA1Cipher.php');
 
 use CS495Group2\G2GA1\G2GA1Cipher;
+
 
 /* Verify arguments and start cipher
 ============================================================================= */
@@ -80,26 +84,28 @@ function startCipher($argv)
     fclose($k1File);
 }
 
-function encrypt($plainText, $k1, $k2, $k3)
+function encrypt($plainText, &$k1, $k2, $k3)
 {
     setTitle('g2ga1 - encrypting');
     printDesc();
 
-    echo 'Criphertext: ' . PHP_EOL;
-
     $g2ga1 = new G2GA1Cipher();
-    echo $g2ga1->encrypt($plainText, $k1, $k2, $k3) . PHP_EOL;
+
+    $cipherText = $g2ga1->encrypt($plainText, $k1, $k2, $k3);
+    echo 'Ciphertext: ' . PHP_EOL;
+    echo $cipherText . PHP_EOL;
 }
 
-function decrypt($cipherText, $k1, $k2, $k3)
+function decrypt($cipherText, &$k1, $k2, $k3)
 {
     setTitle('g2ga1 - decrypting');
     printDesc();
 
-    echo 'Plaintext: ' . PHP_EOL;
-
     $g2ga1 = new G2GA1Cipher();
-    echo $g2ga1->decrypt($cipherText, $k1, $k2, $k3) . PHP_EOL;
+    
+    $plainText = $g2ga1->decrypt($cipherText, $k1, $k2, $k3);
+    echo 'Plaintext: ' . PHP_EOL;
+    echo $plainText . PHP_EOL;
 }
 
 
@@ -174,7 +180,7 @@ function verifyArgs($argv)
         printUsageErr('k3 must contain at least one letter.');
 
     // Verify that the mode is either 'E' or 'D'
-    if (strlen($argv[5]) > 1 || preg_match('/[^ED]/', $argv[5]))
+    if (strlen($argv[5]) > 1 || preg_match('/[^EeDd]/', $argv[5]))
         printUsageErr('Mode must be either \'E\' or \'D\'.');
 }
 
