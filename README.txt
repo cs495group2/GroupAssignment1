@@ -109,7 +109,7 @@ Usage: g2ga1 <message_file> <k1_file> <k2> <k3> <mode>
 
 Examples:
  To encrypt:
-  ./g2ga1 /path/to/message /path/to/k1 C015 K3SECRET E
+  ./g2ga1 /path/to/message /path/to/k1 C015 K3SECRET E > /path/to/encMessage
 
  To decrypt:
-  ./g2ga1 /path/to/message /path/to/k1 C015 K3SECRET D
+  ./g2ga1 /path/to/encMessage /path/to/k1 C015 K3SECRET D
