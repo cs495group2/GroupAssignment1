@@ -5,7 +5,9 @@ Group Assignment 1: G2GA1 Cipher
 Group Members: Aaron Dutton, Chris Spillers, Cyndi Motley, Sudhir Regmi, Ka Fung
 ================================================================================
 
-G2GA1 Usage
+The script file that the G2GA1 Cipher is implmeneted as is located in src/g2ga1.
+
+g2ga1 Usage
 --------------------------------------------------------------------------------
 
 Usage: g2ga1 <message_file> <k1_file> <k2> <k3> <mode>
