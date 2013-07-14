@@ -78,8 +78,6 @@ function startCipher($argv)
         decrypt($text, $k1, $k2, $k3);
     }
 
-    echo PHP_EOL . 'Done.' . PHP_EOL;
-
     fclose($textFile);
     fclose($k1File);
 }
@@ -87,24 +85,22 @@ function startCipher($argv)
 function encrypt($plainText, &$k1, $k2, $k3)
 {
     setTitle('g2ga1 - encrypting');
-    printDesc();
 
     $g2ga1 = new G2GA1Cipher();
-
     $cipherText = $g2ga1->encrypt($plainText, $k1, $k2, $k3);
-    echo 'Ciphertext: ' . PHP_EOL;
+
+    // Output ciphertext
     echo $cipherText . PHP_EOL;
 }
 
 function decrypt($cipherText, &$k1, $k2, $k3)
 {
     setTitle('g2ga1 - decrypting');
-    printDesc();
 
     $g2ga1 = new G2GA1Cipher();
-    
     $plainText = $g2ga1->decrypt($cipherText, $k1, $k2, $k3);
-    echo 'Plaintext: ' . PHP_EOL;
+
+    // Output plaintext
     echo $plainText . PHP_EOL;
 }
 
