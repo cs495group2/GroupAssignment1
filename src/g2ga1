@@ -1,8 +1,5 @@
 #!/usr/bin/env php
 <?php
-ini_set('display_errors', '1');
-
-
 require_once('lib/CS495Group2/G2GA1/G2GA1Cipher.php');
 
 use CS495Group2\G2GA1\G2GA1Cipher;
