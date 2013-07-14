@@ -86,7 +86,7 @@ function decrypt(&$cipherText, &$k1, $k2, $k3)
 
 function showUsage()
 {
-    printDesc();
+    showDesc();
 ?>
 Usage: g2ga1 <message_file> <k1_file> <k2> <k3> <mode>
 
@@ -112,7 +112,7 @@ function showUsageErr($error)
     die('Error: ' . $error . PHP_EOL);
 }
 
-function printDesc()
+function showDesc()
 {
 ?>
 

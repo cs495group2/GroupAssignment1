@@ -5,6 +5,12 @@ Group Assignment 1: G2GA1 Cipher
 Group Members: Aaron Dutton, Chris Spillers, Cyndi Motley, Sudhir Regmi, Ka Fung
 ================================================================================
 
+Group2's cipher design for Group Assignment 1 is called the G2GA1 Cipher.
+
+The G2GA1 Cipher is a polygraphic substitution cipher that uses three rounds, 
+ three keys, a key derivation function, and a stochastic algorithm to 
+ encrypt/decrypt messages.
+
 Notes:
 1) Prevent Brute Force Attack
 2) Stochastic Process
