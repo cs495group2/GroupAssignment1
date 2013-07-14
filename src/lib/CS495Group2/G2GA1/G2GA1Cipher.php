@@ -227,6 +227,7 @@ class G2GA1Cipher
         }
 
         // Encrypt plaintext
+        $cipherText = '';
         foreach ($plainTextMatrix as $column) {
             for ($i = 0; $i < count($column); $i++) {
                 $cipherCharDec = ($column[$i] + $key[$i]) % self::MODULUS;
