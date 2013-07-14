@@ -13,69 +13,37 @@ class G2GA1Cipher
 ============================================================================= */
 
     // G2GA1 encryption
-    public function encrypt($plainText, &$k1, $k2, $k3)
+    public function encrypt(&$plainText, &$k1, $k2, $k3)
     {
-        echo 'kdf-before mem (bytes): ' . memory_get_usage() . PHP_EOL;
-        $start = microtime(true);
         // Run KDF function using k1 and k2
         $this->kdf($k1, $k2);
-        $stop = microtime(true);
-        echo 'kdf done after (s): ' . ($stop - $start) . PHP_EOL;
 
-        $start = microtime(true);
-        echo 'encRound1-before mem (bytes): ' . memory_get_usage() . PHP_EOL;
         // Generate ordered pairs string
         $orderedPairs = $this->encRound1($plainText);
-        $stop = microtime(true);
-        echo 'encRound1 done after (s): ' . ($stop - $start) . PHP_EOL;
 
-        $start = microtime(true);
-        echo 'encRound2-before mem (bytes): ' . memory_get_usage() . PHP_EOL;
         // Encode ordered pairs string
         $orderedPairsEncoded = $this->encRound2($orderedPairs);
-        $stop = microtime(true);
-        echo 'encRound2 done after (s): ' . ($stop - $start) . PHP_EOL;
 
-        $start = microtime(true);
-        echo 'encRound3-before mem (bytes): ' . memory_get_usage() . PHP_EOL;
         // Encrypt the encoded ordered pairs string with Vigenere Cipher
         $cipherText = $this->encRound3($orderedPairsEncoded, $k3);
-        $stop = microtime(true);
-        echo 'encRound3 done after (s): ' . ($stop - $start) . PHP_EOL;
 
         return $cipherText;
     }
 
     // G2GA1 decryption
-    public function decrypt($cipherText, &$k1, $k2, $k3)
+    public function decrypt(&$cipherText, &$k1, $k2, $k3)
     {
         // Run KDF function using k1 and k2
-        echo 'kdf-before mem (bytes): ' . memory_get_usage() . PHP_EOL;
-        $kdf_start = microtime(true);
         $this->kdf($k1, $k2);
-        $kdf_end = microtime(true);
-        echo 'kdf done after (s): ' . ($kdf_end - $kdf_start) . PHP_EOL;
 
-        $start = microtime(true);
-        echo 'decRound1-before mem (bytes): ' . memory_get_usage() . PHP_EOL;
         // Decrypt the encoded ordered pairs string with Vigenere Cipher
         $orderedPairsEncoded = $this->decRound1($cipherText, $k3);
-        $stop = microtime(true);
-        echo 'decRound1 done after (s): ' . ($stop - $start) . PHP_EOL;
 
-        $start = microtime(true);
-        echo 'decRound2-before mem (bytes): ' . memory_get_usage() . PHP_EOL;
         // Decode the ordered pairs string
         $orderedPairs = $this->decRound2($orderedPairsEncoded);
-        $stop = microtime(true);
-        echo 'decRound2 done after (s): ' . ($stop - $start) . PHP_EOL;
 
-        $start = microtime(true);
-        echo 'decRound3-before mem (bytes): ' . memory_get_usage() . PHP_EOL;
         // Lookup the origional plaintext from the ordered pairs string
         $plainText = $this->decRound3($orderedPairs);
-        $stop = microtime(true);
-        echo 'decRound3 done after (s): ' . ($stop - $start) . PHP_EOL;
 
         return $plainText;
     }
@@ -83,15 +51,35 @@ class G2GA1Cipher
     // G2GA1 key derivation function
     private function kdf(&$k1, $k2)
     {
+        echo "Memory used: ", memory_get_peak_usage(), "\n";
+
         $numbColumns = $k2 % strlen($k1);
 
-        $k1StrMatrix = str_split($k1, $numbColumns);
+        $column = 0;
+        $row = 0;
+        for ($i = 0; $i < strlen($k1); $i++) {
+            // When column reaches k2, iterate row and reset column to 1;
+            if ($column == ($k2 - 1)) {
+                $this->matrix[$row][$column] = $k1[$i];
+                $column = 1;
+                ++$row;
+            } else {
+                $this->matrix[$row][$column] = $k1[$i];
+                ++$column;
+            }
+        }
+
+        unset($k1);
+
+        /*$k1StrMatrix = str_split($k1, $numbColumns);
+
         foreach ($k1StrMatrix as $row) {
             //Split each row from k1StrMatrix into individual column entries
-            //  and store in the matrix array 
+            //  and store in the matrix array
             $this->matrix[] = str_split($row);
-        }
-        echo 'kdf-after mem (bytes): ' . memory_get_usage() . PHP_EOL;
+        }*/
+
+        echo "Memory used: ", memory_get_peak_usage(), "\n";
     }
 
 
@@ -99,7 +87,7 @@ class G2GA1Cipher
 ============================================================================= */
 
     // Encryption Round 1 - Stochastic plaintext mapping
-    private function encRound1($plainText)
+    private function encRound1(&$plainText)
     {
         $plainTextVector = str_split($plainText);
         $letterMap = array();
@@ -137,12 +125,11 @@ class G2GA1Cipher
             die(1);
         }
 
-        echo 'encRound1-after mem (bytes): ' . memory_get_usage() . PHP_EOL;
         return $orderedPairs;
     }
 
     // Encryption Round 2 - Coordinate encoding
-    private function encRound2($orderedPairs)
+    private function encRound2(&$orderedPairs)
     {
         $orderedPairsEncoded = '';
 
@@ -236,12 +223,11 @@ class G2GA1Cipher
                 }
             }
 
-        echo 'encRound2-after mem (bytes): ' . memory_get_usage() . PHP_EOL;
         return $orderedPairsEncoded;
     }
 
     // Encryption Round 3 - Vigenère Cipher encryption
-    private function encRound3($orderedPairsEncoded, $k3)
+    private function encRound3(&$orderedPairsEncoded, $k3)
     {
         // Process key
         $k3Vector = str_split($k3);
@@ -274,7 +260,6 @@ class G2GA1Cipher
             }
         }
 
-        echo 'encRound3-after mem (bytes): ' . memory_get_usage() . PHP_EOL;
         return $cipherText;
     }
 
@@ -283,7 +268,7 @@ class G2GA1Cipher
 ============================================================================= */
 
     // Decryption Round 1 - Vigenère Cipher decryption
-    private function decRound1($cipherText, $k3)
+    private function decRound1(&$cipherText, $k3)
     {
         // Process key
         $k3Vector = str_split($k3);
@@ -292,8 +277,13 @@ class G2GA1Cipher
         }
 
         // Process ciphertext
-        $cipherTextVector = str_split($cipherText);
-        $row = 0;
+        //$cipherTextVector = str_split($cipherText);
+        //echo strlen($cipherText) . PHP_EOL;
+        //for ($i = 0; $i < strlen($cipherText); $i++) {
+        //    $cipherTextVector[$i] = $cipherText[$i];
+        //}
+
+        /*$row = 0;
         for ($i = 0; $i < count($cipherTextVector); $i++) {
             // Move to the next row when index is a multiple of the key
             if ($i > 0 && $i % count($key) == 0) {
@@ -302,10 +292,29 @@ class G2GA1Cipher
             // Store each ciphertext character in matrix entry in decimal format
             $orderedPairsEncodedEntrypedMatrix[$row][] = 
                 ord($cipherTextVector[$i]) - 65;
-        }
+        }*/
+
+        echo strlen($cipherText) . PHP_EOL;
+
+        echo "Memory used: ", memory_get_peak_usage(), "\n";
+
+        /*$row = 0;
+        for ($i = 0; $i < strlen($cipherText); $i++) {
+            // Move to the next row when index is a multiple of the key
+            if ($i > 0 && $i % count($key) == 0) {
+                ++$row;
+            }
+            // Store each ciphertext character in matrix entry in decimal format
+            $orderedPairsEncodedEntrypedMatrix[$row][] = 
+                ord($cipherText[$i]) - 65;
+        }*/
+
+        //unset($cipherText);
+        echo "Memory used: ", memory_get_peak_usage(), "\n";
+
 
         // Decrypt ciphertext (ordered pairs encoded encrypted)
-        $orderedPairsEncoded = '';
+        /*$orderedPairsEncoded = '';
         foreach ($orderedPairsEncodedEntrypedMatrix as $column) {
             for ($i = 0; $i < count($column); $i++) {
                 $plainCharDec = ($column[$i] - $key[$i]) % self::MODULUS;
@@ -314,14 +323,35 @@ class G2GA1Cipher
                 }
                 $orderedPairsEncoded .= chr($plainCharDec + 65);
             }
+        }*/
+
+        // Decrypt ciphertext (ordered pairs encoded encrypted)
+        $k3Index = 0;
+        for ($i = 0; $i < strlen($cipherText); $i++) {
+            if ($k3Index == (count($k3) - 1)) {
+                $plainCharDec = ((ord($cipherText[$i]) - 65) - $key[$k3Index]) % self::MODULUS;
+                while ($plainCharDec < 0) {
+                    $plainCharDec += self::MODULUS;
+                }
+                $cipherText[$i] = chr($plainCharDec + 65);
+                $k3Index = 0;
+            } else {
+                $plainCharDec = ((ord($cipherText[$i]) - 65) - $key[$k3Index]) % self::MODULUS;
+                while ($plainCharDec < 0) {
+                    $plainCharDec += self::MODULUS;
+                }
+                $cipherText[$i] = chr($plainCharDec + 65);
+                ++$k3Index;
+            }
         }
 
-        echo 'decRound1-after mem (bytes): ' . memory_get_usage() . PHP_EOL;
-        return $orderedPairsEncoded;
+        return $cipherText;
+
+        //return $orderedPairsEncoded;
     }
 
     // Decryption Round 2 - Coordinate decoding
-    private function decRound2($orderedPairsEncoded)
+    private function decRound2(&$orderedPairsEncoded)
     {
         $orderedPairs = '';
 
@@ -367,18 +397,18 @@ class G2GA1Cipher
             }
           }
 
-        echo 'decRound2-after mem (bytes): ' . memory_get_usage() . PHP_EOL;
         return $orderedPairs;
     }
 
     // Decryption Round 3 - Plaintext lookup
-    private function decRound3($orderedPairs)
+    private function decRound3(&$orderedPairs)
     {
-        // Built order pair mapping ('row#,column#' => letter)
-        $orderPairMap = array();
+        $letterMap = array();
+
+        // Built letter map (letter => set of 'row#,column#')
         foreach ($this->matrix as $row => $columns) {
             foreach ($columns as $column => $entry) {
-                $orderPairMap[$row . ',' . $column] = $entry;
+                $letterMap[$entry][] = $row . ',' . $column;
             }
         }
 
@@ -390,12 +420,18 @@ class G2GA1Cipher
             $i += 2;
         }
 
+        // Lookup plaintext from k1 matrix
         $plainText = '';
         foreach ($orderPairsVector as $orderedPair) {
-            $plainText .= $orderPairMap[$orderedPair];
+            foreach ($letterMap as $lmLetter => $lmOrderPairsVector) {
+                foreach ($lmOrderPairsVector as $lmOrderedPair) {
+                    if ($orderedPair == $lmOrderedPair) {
+                        $plainText .= $lmLetter;
+                    }
+                }
+            }
         }
 
-        echo 'decRound3-after mem (bytes): ' . memory_get_usage() . PHP_EOL;
         return $plainText;
     }
 }

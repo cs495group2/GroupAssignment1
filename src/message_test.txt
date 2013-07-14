@@ -1,0 +1,50 @@
+Group Assignment 1 - Cipher Design
+Group Assignment 1 - due 11:59 PM July 14th 2013
+Submit
+
+Due Date: The same day the Midterm exam is due
+
+The Groups
+
+    Group 0: eehlers, npatel, tfoster, zregelsk, scarte
+    Group 1: ntarasso, cbible, gmicros, jmonteit, jwar
+    Group 2: adutton, cspiller, cmotley, sregmi, kfun
+    Group 3: jmazur, kevin leong, lzmanovs, ncatlett, zalijan
+    Group 4: xlin, coakley, abaron, hsanderl, mhamilto
+
+n.b. these are your group members CS email addresses e.g. &squot;eehlers@cs.odu.edu&squot; If one or more of your group is not communicating with your team the rest of you will not be penalized, and the grading will be adjusted accordingly.
+
+Objective
+Using the skills and techniques learned during the class before the midterm exam, your group will design and create a cipher. This cipher should not be just an implementation of something introduced in this class, but something you have designed. The improvement upon said ciphers can be incremential, as long as it's something new, but you should strive to do your best. The implementation should run on the departmental Solaris machines (as stated in the FAQ) and should run using system-wide installations. You may choose your own language and compiler from these installations, or request something new from the Systems Group (root@cs.odu.edu). Furthermore, all submitted text will be encoded in a way visible to standard tools available on the system (to include `vi`, `nano`, `less`, etc...). Do not submit PowerPoint or DOCX format. Each group member must submit the final code revision using the submit command. Each individual must also submit a file named 'group' that contains your opinion of the ranking of the contribution of the group members, with the group member that contributed the most at the top, and the group member that contributed the least at the bottom of the file. You may include comments if you like, but they should be prefixed with '#' or '//'.
+
+Usage
+Your compiled code will execute with at least three arguments on the command-line. The first argument will be a path to a file that contains the data to operate on. The second argument will be the key in big-endian hexadecimal without spaces or any prefix such as '0x'. Additional keys, if required for your cipher will be subsequently presented on the command-line. The last argument will be the letter 'E' for encryption mode or 'D' for decryption mode. In lieu of the third argument, you may submit multiple applications; one for encryption and one for decryption
+
+    Example:
+
+    # gmake
+    gcc -O5 affine.c -o affine
+    # ./affine /tmp/secretMessage 6e9b 3 1A E > /tmp/output
+
+    In this example, M is the size of the latin alphabet (26), is treated as a key, and therefore converted into hex (1A). The other two values are k1=28315 and k2=3. 
+
+The application will then write the encrypted or decrypted text to standard output (cout). In the example above the encrypted message is now located in the file /tmp/output.
+
+Submission
+A good submission will contain the following files:
+
+    All source code
+    Cipher design documentation
+    Makefile (optional)
+    README (optional)
+    group
+
+Let the student beware...
+
+    You are not to use binary operations (xor, bit-shift, nand, etc) in your cipher.
+    Do not use a 'known hard problem' from modern cryptography.
+    You will be graded on group cipher design, group cipher implementation, and your group participation.
+    The cipher must be able to encrypt and decrypt a message no less than 1kB in less than five minutes wallclock time (under normal system load). Ciphers requiring additional time will be met with a penalty in five-minute increments.
+    Your cipher design documentation takes precedence over the source code. If your code implements a different algorithm than your design documentation indicates, a penalty will be applied.
+
+images public domain courtesy wikipedia, et. al. 

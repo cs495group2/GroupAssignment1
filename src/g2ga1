@@ -12,9 +12,9 @@ if ($argc != 6) {
     if ($argc == 1 || in_array(
         $argv[1],
         array('--help', '-help', '-h', '-?'))) {
-        printUsage();
+        showUsage();
     } else {
-        printUsageErr('Six arguments are required.');
+        showUsageErr('Six arguments are required.');
     }
 } else {
     // Hide CLI arguments (including keys) from process title
@@ -33,31 +33,14 @@ if ($argc != 6) {
 
 function startCipher($argv)
 {
-    // Open text file
-    $textFile = fopen($argv[1], 'r');
-    if (!$textFile) {
-        printUsageErr('Unable to open file: ' . $argv[1]);
-    }
-
-    // Open k1 file
-    $k1File = fopen($argv[2], 'r');
-    if (!$k1File) {
-        printUsageErr('Unable to open file: ' . $argv[2]);
-    }
+    //ini_set('memory_limit', '260M');
+    ini_set('memory_limit', '-1');
 
     // Store text file contents in string
-    $text = '';
-    while (($textBuffer = fgets($textFile)) !== false) {
-        $text .= $textBuffer;
-    }
-    $text = sanitize($text);
+    $text = sanitize(file_get_contents($argv[1]));
 
     // Store k1 key file contents in string
-    $k1 = '';
-    while (($k1Buffer = fgets($k1File)) !== false) {
-        $k1 .= $k1Buffer;
-    }
-    $k1 = sanitize($k1);
+    $k1 = sanitize(file_get_contents($argv[2]));
 
     // Set k2 key
     $k2 = hexdec($argv[3]);
@@ -75,37 +58,57 @@ function startCipher($argv)
         decrypt($text, $k1, $k2, $k3);
     }
 
-    fclose($textFile);
-    fclose($k1File);
+    echo 'Peak mem usage: ' . memory_get_peak_usage() . PHP_EOL;
 }
 
-function encrypt($plainText, &$k1, $k2, $k3)
+function encrypt(&$plainText, &$k1, $k2, $k3)
 {
     setTitle('g2ga1 - encrypting');
 
     $g2ga1 = new G2GA1Cipher();
+
+    $start = microtime(true);
+    echo 'Encryption start'. PHP_EOL;
     $cipherText = $g2ga1->encrypt($plainText, $k1, $k2, $k3);
+    $stop = microtime(true);
+    echo 'Encryption done after (s): ' . ($stop - $start) . PHP_EOL;
 
     // Output ciphertext
-    echo $cipherText . PHP_EOL;
+    //echo $cipherText . PHP_EOL;
+
+    $encMessageHandle = fopen('encMessage.txt', 'w');
+    fwrite($encMessageHandle, $cipherText);
+    fclose($encMessageHandle);
+
+
 }
 
-function decrypt($cipherText, &$k1, $k2, $k3)
+function decrypt(&$cipherText, &$k1, $k2, $k3)
 {
     setTitle('g2ga1 - decrypting');
 
     $g2ga1 = new G2GA1Cipher();
+
+    $start = microtime(true);
+    echo 'Decryption start'. PHP_EOL;
     $plainText = $g2ga1->decrypt($cipherText, $k1, $k2, $k3);
+    //echo $plainText . PHP_EOL;
+    $stop = microtime(true);
+    echo 'Decryption done after (s): ' . ($stop - $start) . PHP_EOL;
 
     // Output plaintext
-    echo $plainText . PHP_EOL;
+    //echo $plainText . PHP_EOL;
+
+    $decMessageHandle = fopen('decMessage.txt', 'w');
+    fwrite($decMessageHandle, $plainText);
+    fclose($decMessageHandle); 
 }
 
 
-/* Helper functions
+/* Utility functions
 ============================================================================= */
 
-function printUsage()
+function showUsage()
 {
     printDesc();
 ?>
@@ -127,9 +130,9 @@ Examples:
 <?php
 }
 
-function printUsageErr($error)
+function showUsageErr($error)
 {
-    printUsage();
+    showUsage();
     die('Error: ' . $error . PHP_EOL);
 }
 
@@ -158,28 +161,28 @@ function verifyArgs($argv)
 {
     // Verify text files exits
     if (!file_exists($argv[1]))
-        printUsageErr('File ' . $argv[1] . ' does not exist.');
+        showUsageErr('File ' . $argv[1] . ' does not exist.');
 
     // Verify k1 files exits
     if (!file_exists($argv[2]))
-        printUsageErr('File ' . $argv[2] . ' does not exist.');
+        showUsageErr('File ' . $argv[2] . ' does not exist.');
 
     // Verify k2 is valid hexadecimal value > 0   
     if (hexdec($argv[3]) < 1 || preg_match('/[^A-Fa-f0-9]/', $argv[3]))
-        printUsageErr('k2 must be a hexadeciaml value greater than 0.');
+        showUsageErr('k2 must be a hexadeciaml value greater than 0.');
 
     // Verify k3's length > 0, prevents empty string
     if (!(strlen($argv[4]) > 0))
-        printUsageErr('k3 must contain at least one letter.');
+        showUsageErr('k3 must contain at least one letter.');
 
     // Verify that the mode is either 'E' or 'D'
     if (strlen($argv[5]) > 1 || preg_match('/[^EeDd]/', $argv[5]))
-        printUsageErr('Mode must be either \'E\' or \'D\'.');
+        showUsageErr('Mode must be either \'E\' or \'D\'.');
 }
 
 // Remove all non English letters and convert to uppercase
 function sanitize($text)
 {
-    return strtoupper(preg_replace('/[^A-z]/', '', $text));
+    return strtoupper(preg_replace('/[^A-Za-z]/', '', $text));
 }
 ?>
