@@ -269,6 +269,7 @@ class G2GA1Cipher
         }
 
         // Decrypt ciphertext (ordered pairs encoded encrypted)
+        $orderedPairsEncoded = '';
         foreach ($orderedPairsEncodedEntrypedMatrix as $column) {
             for ($i = 0; $i < count($column); $i++) {
                 $plainCharDec = ($column[$i] - $key[$i]) % self::MODULUS;
@@ -353,6 +354,7 @@ class G2GA1Cipher
         }
 
         // Lookup plaintext from k1 matrix
+        $plainText = '';
         foreach ($orderPairsVector as $orderedPair) {
             foreach ($letterMap as $lmLetter => $lmOrderPairsVector) {
                 foreach ($lmOrderPairsVector as $lmOrderedPair) {
