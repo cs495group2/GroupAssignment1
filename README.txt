@@ -81,15 +81,15 @@ Round III: “Vigenere Cipher Encryption"
 Decryption
 --------------------------------------------------------------------------------
 
-Round I - “Vigenere Cipher Decryption” ; Function decRound1(cipher text, k3)
+Round I - “Vigenere Cipher Decryption”
 - Round I decrypts the ciphertext with the third key, k3 to produce ordered pair
    strings used in round 2.
 
-Round II - “Coordinate Decoding” ; decRound2(encodedOrderedPairs)
+Round II - “Coordinate Decoding”
 - Characters “A-J” will be decoded to “0-9” respectively.
 - Any character from K-Z will be decoded as a “,”.
 
-Round III - “Plaintext LookUp” ; Function: decRound3(orderedpairs)
+Round III - “Plaintext LookUp”
 - Round 3 processes the strings of ordered pairs produced by round 2.
 - Each ordered pair is processed to the corresponding plaintext character.
 - The plaintext characters are appended to a string this becomes the output of
