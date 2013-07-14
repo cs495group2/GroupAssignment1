@@ -13,7 +13,7 @@ class G2GA1Cipher
 ============================================================================= */
 
     // G2GA1 encryption
-    public function encrypt($plainText, $k1, $k2, $k3)
+    public function encrypt($plainText, &$k1, $k2, $k3)
     {
         // Run KDF function using k1 and k2
         $this->kdf($k1, $k2);
@@ -31,7 +31,7 @@ class G2GA1Cipher
     }
 
     // G2GA1 decryption
-    public function decrypt($cipherText, $k1, $k2, $k3)
+    public function decrypt($cipherText, &$k1, $k2, $k3)
     {
         // Run KDF function using k1 and k2
         $this->kdf($k1, $k2);
@@ -49,7 +49,7 @@ class G2GA1Cipher
     }
 
     // G2GA1 key derivation function
-    private function kdf($k1, $k2)
+    private function kdf(&$k1, $k2)
     {
         $numbColumns = $k2 % strlen($k1);
         $k1StrMatrix = str_split($k1, $numbColumns);
@@ -69,26 +69,40 @@ class G2GA1Cipher
     private function encRound1($plainText)
     {
         $plainTextVector = str_split($plainText);
-        $occurenceMatrix[][] = array();
-        $nthOccurrence = mt_rand(1, mt_getrandmax());
+        $letterMap = array();
+        $unmappedLettersVector = array();
+
+        // Built letter map (letter => set of 'row#,column#')
+        foreach ($this->matrix as $row => $columns) {
+            foreach ($columns as $column => $entry) {
+                $letterMap[$entry][] = $row . ',' . $column;
+            }
+        }
+
+        // Choose random occurence of each letter
         $orderedPairs = '';
-
-        // Cycle through rows of k1 matrix
-        for ($i = 0; $i < count($this->matrix); $i++) {
-            // Cycle through columns of k1 matrix
-            for ($j = 0; $j < count($this->matrix[$i]); $j++) {
-                // Cycle through plaintext looking for occurence
-                for ($k = 0; $k < count($plainTextVector); $k++) {
-
-                    // TODO: Finish plaintext letter matching/storage
-                    if ($plainTextVector[$k] == $this->matrix[$i][$j]) {
-                        // Ordered pair => $i . ',' . $j;
-                    }
+        foreach ($plainTextVector as $letter) {
+            if ($letterMap[$letter] == NULL) {
+                $unmappedLettersVector[] = $letter;
+            } else {
+                $nthOccurrence = mt_rand(0, (count($letterMap[$letter]) - 1));
+                if (strlen($orderedPairs) < 1) {
+                    $orderedPairs .= $letterMap[$letter][$nthOccurrence];
+                } else {
+                    $orderedPairs .= ',' . $letterMap[$letter][$nthOccurrence];
                 }
             }
         }
 
-        ksort($occurenceMatrix);
+        // Die if any plaintext letters were not mapped.
+        if (count($unmappedLettersVector) > 0) {
+            echo "Error: The following plaintext letters do not exist in k1: ";
+            foreach ($unmappedLettersVector as $letter) {
+                echo $letter;
+            }
+            echo PHP_EOL;
+            die(1);
+        }
 
         return $orderedPairs;
     }
@@ -99,7 +113,7 @@ class G2GA1Cipher
         $orderedPairsEncoded = '';
 
         $len = strlen($orderedPairs);
-         for($i=0; $i<=$len; $i++){
+         for($i=0; $i<$len; $i++){
              // Evaluate each character in the string of ordered pairs
              switch ($orderedPairs[$i]){
                 // Convert 0-9 to letters A-J
@@ -184,7 +198,7 @@ class G2GA1Cipher
                         case "25":
                             $orderedPairsEncoded = $orderedPairsEncoded."Z";
                             break;
-                        }
+                    }
                 }
             }
 
@@ -273,7 +287,7 @@ class G2GA1Cipher
         $orderedPairs = '';
 
         $len = strlen($orderedPairsEncoded);
-        for($i=0; $i<=$len; $i++){
+        for($i=0; $i<$len; $i++){
             // Evaluate each lettter in the encoded string
             switch ($orderedPairsEncoded[$i]){
                 // Convert letters A-J to numerals 0-9
@@ -320,19 +334,33 @@ class G2GA1Cipher
     // Decryption Round 3 - Plaintext lookup
     private function decRound3($orderedPairs)
     {
-        $plainText = '';
+        $letterMap = array();
 
-        // TODO: refactor/test
+        // Built letter map (letter => set of 'row#,column#')
+        foreach ($this->matrix as $row => $columns) {
+            foreach ($columns as $column => $entry) {
+                $letterMap[$entry][] = $row . ',' . $column;
+            }
+        }
 
-        /*$len=strlen($orderedPairs);
-        for($i=0; $i<=$key1; $i++){
-            for($j=0; $j<=$Matrix[$i][$j].length; $j++){
-                for($k=0; $k<=$Matrix[$j][$k].length; $k++){        
-                    $pick=$Matrix[$orderedPairs][$i];
-                    $plainText=$plainText+$pick;
+        // Parse order pairs string
+        $componetVector = explode(',', $orderedPairs);
+        $i = 0;
+        while ($i < count($componetVector)) {
+            $orderPairsVector[] = $componetVector[$i] . ',' . $componetVector[$i + 1];
+            $i += 2;
+        }
+
+        // Lookup plaintext from k1 matrix
+        foreach ($orderPairsVector as $orderedPair) {
+            foreach ($letterMap as $lmLetter => $lmOrderPairsVector) {
+                foreach ($lmOrderPairsVector as $lmOrderedPair) {
+                    if ($orderedPair == $lmOrderedPair) {
+                        $plainText .= $lmLetter;
+                    }
                 }
             }
-        }*/
+        }
 
         return $plainText;
     }
