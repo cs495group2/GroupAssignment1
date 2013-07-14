@@ -33,7 +33,6 @@ if ($argc != 6) {
 
 function startCipher($argv)
 {
-    //ini_set('memory_limit', '260M');
     ini_set('memory_limit', '-1');
 
     // Store text file contents in string
@@ -57,8 +56,6 @@ function startCipher($argv)
     } else {
         decrypt($text, $k1, $k2, $k3);
     }
-
-    echo 'Peak mem usage: ' . memory_get_peak_usage() . PHP_EOL;
 }
 
 function encrypt(&$plainText, &$k1, $k2, $k3)
@@ -66,21 +63,10 @@ function encrypt(&$plainText, &$k1, $k2, $k3)
     setTitle('g2ga1 - encrypting');
 
     $g2ga1 = new G2GA1Cipher();
-
-    $start = microtime(true);
-    echo 'Encryption start'. PHP_EOL;
     $cipherText = $g2ga1->encrypt($plainText, $k1, $k2, $k3);
-    $stop = microtime(true);
-    echo 'Encryption done after (s): ' . ($stop - $start) . PHP_EOL;
 
     // Output ciphertext
-    //echo $cipherText . PHP_EOL;
-
-    $encMessageHandle = fopen('encMessage.txt', 'w');
-    fwrite($encMessageHandle, $cipherText);
-    fclose($encMessageHandle);
-
-
+    echo $cipherText . PHP_EOL;
 }
 
 function decrypt(&$cipherText, &$k1, $k2, $k3)
@@ -88,20 +74,10 @@ function decrypt(&$cipherText, &$k1, $k2, $k3)
     setTitle('g2ga1 - decrypting');
 
     $g2ga1 = new G2GA1Cipher();
-
-    $start = microtime(true);
-    echo 'Decryption start'. PHP_EOL;
     $plainText = $g2ga1->decrypt($cipherText, $k1, $k2, $k3);
-    //echo $plainText . PHP_EOL;
-    $stop = microtime(true);
-    echo 'Decryption done after (s): ' . ($stop - $start) . PHP_EOL;
 
     // Output plaintext
-    //echo $plainText . PHP_EOL;
-
-    $decMessageHandle = fopen('decMessage.txt', 'w');
-    fwrite($decMessageHandle, $plainText);
-    fclose($decMessageHandle); 
+    echo $plainText . PHP_EOL;
 }
 
 
@@ -122,10 +98,10 @@ Usage: g2ga1 <message_file> <k1_file> <k2> <k3> <mode>
 
 Examples:
  To encrypt:
-  g2ga1 /path/to/message /path/to/k1 C015 K3SECRET E
+  ./g2ga1 /path/to/message /path/to/k1 C015 K3SECRET E > /path/to/encMessage
 
  To decrypt:
-  g2ga1 /path/to/message /path/to/k1 C015 K3SECRET D
+  ./g2ga1 /path/to/encMessage /path/to/k1 C015 K3SECRET D
 
 <?php
 }

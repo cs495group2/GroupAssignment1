@@ -15,33 +15,17 @@ class G2GA1Cipher
     // G2GA1 encryption
     public function encrypt($plainText, &$k1, $k2, $k3)
     {
-        echo 'kdf-before mem (bytes): ' . memory_get_usage() . PHP_EOL;
-        $start = microtime(true);
         // Run KDF function using k1 and k2
         $this->kdf($k1, $k2);
-        $stop = microtime(true);
-        echo 'kdf done after (s): ' . ($stop - $start) . PHP_EOL;
 
-        $start = microtime(true);
-        echo 'encRound1-before mem (bytes): ' . memory_get_usage() . PHP_EOL;
         // Generate ordered pairs string
         $orderedPairs = $this->encRound1($plainText);
-        $stop = microtime(true);
-        echo 'encRound1 done after (s): ' . ($stop - $start) . PHP_EOL;
 
-        $start = microtime(true);
-        echo 'encRound2-before mem (bytes): ' . memory_get_usage() . PHP_EOL;
         // Encode ordered pairs string
         $orderedPairsEncoded = $this->encRound2($orderedPairs);
-        $stop = microtime(true);
-        echo 'encRound2 done after (s): ' . ($stop - $start) . PHP_EOL;
 
-        $start = microtime(true);
-        echo 'encRound3-before mem (bytes): ' . memory_get_usage() . PHP_EOL;
         // Encrypt the encoded ordered pairs string with Vigenere Cipher
         $cipherText = $this->encRound3($orderedPairsEncoded, $k3);
-        $stop = microtime(true);
-        echo 'encRound3 done after (s): ' . ($stop - $start) . PHP_EOL;
 
         return $cipherText;
     }
@@ -50,32 +34,16 @@ class G2GA1Cipher
     public function decrypt($cipherText, &$k1, $k2, $k3)
     {
         // Run KDF function using k1 and k2
-        echo 'kdf-before mem (bytes): ' . memory_get_usage() . PHP_EOL;
-        $kdf_start = microtime(true);
         $this->kdf($k1, $k2);
-        $kdf_end = microtime(true);
-        echo 'kdf done after (s): ' . ($kdf_end - $kdf_start) . PHP_EOL;
 
-        $start = microtime(true);
-        echo 'decRound1-before mem (bytes): ' . memory_get_usage() . PHP_EOL;
         // Decrypt the encoded ordered pairs string with Vigenere Cipher
         $orderedPairsEncoded = $this->decRound1($cipherText, $k3);
-        $stop = microtime(true);
-        echo 'decRound1 done after (s): ' . ($stop - $start) . PHP_EOL;
 
-        $start = microtime(true);
-        echo 'decRound2-before mem (bytes): ' . memory_get_usage() . PHP_EOL;
         // Decode the ordered pairs string
         $orderedPairs = $this->decRound2($orderedPairsEncoded);
-        $stop = microtime(true);
-        echo 'decRound2 done after (s): ' . ($stop - $start) . PHP_EOL;
 
-        $start = microtime(true);
-        echo 'decRound3-before mem (bytes): ' . memory_get_usage() . PHP_EOL;
         // Lookup the origional plaintext from the ordered pairs string
         $plainText = $this->decRound3($orderedPairs);
-        $stop = microtime(true);
-        echo 'decRound3 done after (s): ' . ($stop - $start) . PHP_EOL;
 
         return $plainText;
     }
@@ -91,7 +59,6 @@ class G2GA1Cipher
             //  and store in the matrix array 
             $this->matrix[] = str_split($row);
         }
-        echo 'kdf-after mem (bytes): ' . memory_get_usage() . PHP_EOL;
     }
 
 
@@ -137,7 +104,6 @@ class G2GA1Cipher
             die(1);
         }
 
-        echo 'encRound1-after mem (bytes): ' . memory_get_usage() . PHP_EOL;
         return $orderedPairs;
     }
 
@@ -236,7 +202,6 @@ class G2GA1Cipher
                 }
             }
 
-        echo 'encRound2-after mem (bytes): ' . memory_get_usage() . PHP_EOL;
         return $orderedPairsEncoded;
     }
 
@@ -274,7 +239,6 @@ class G2GA1Cipher
             }
         }
 
-        echo 'encRound3-after mem (bytes): ' . memory_get_usage() . PHP_EOL;
         return $cipherText;
     }
 
@@ -316,7 +280,6 @@ class G2GA1Cipher
             }
         }
 
-        echo 'decRound1-after mem (bytes): ' . memory_get_usage() . PHP_EOL;
         return $orderedPairsEncoded;
     }
 
@@ -367,7 +330,6 @@ class G2GA1Cipher
             }
           }
 
-        echo 'decRound2-after mem (bytes): ' . memory_get_usage() . PHP_EOL;
         return $orderedPairs;
     }
 
@@ -395,7 +357,6 @@ class G2GA1Cipher
             $plainText .= $orderPairMap[$orderedPair];
         }
 
-        echo 'decRound3-after mem (bytes): ' . memory_get_usage() . PHP_EOL;
         return $plainText;
     }
 }
