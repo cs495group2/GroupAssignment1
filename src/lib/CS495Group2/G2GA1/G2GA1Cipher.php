@@ -149,7 +149,7 @@ class G2GA1Cipher
                     break;
                 case ",":
                     // Convert commas to random letters K-Z
-                    switch (rand(10, 25)){
+                    switch (mt_rand(10, 25)){
                         case "10":
                             $orderedPairsEncoded = $orderedPairsEncoded."K";
                             break;
