@@ -11,103 +11,179 @@ The G2GA1 Cipher is a polygraphic substitution cipher that uses three rounds,
  three keys, a key derivation function, and a stochastic algorithm to 
  encrypt/decrypt messages.
 
+The G2GA1 Cipher encrypts plaintext (monocase English characters with no 
+ punctuation,) by using a dynamically generated lookup matrix.  Each text 
+ character is found in the matrix and then represented as an ordered pair 
+ (glyphs.)  The glyphs are then encoded back into monocase English and 
+ encrypted with the Vigenère Cipher to produce G2GA1 ciphertext.
+
 
 Requirements:
-
-- Defend against weaknesses in the Vigenère Cipher (especially weak keys.)
+-------------
 - This cipher will use cryptography methods introduced prior to midterm.
+
 - This cipher will defend against cryptanalysis methods introduced prior to 
    midterm.
+
 - This cipher will encrypt and/or decrypt a message of no less than 1kB in less 
    than five minutes in real time under normal server load (solaris.cs.odu.edu).
-- This cipher design will not include any binary operations
+
+- This cipher design will not include any binary operations.
+
 - This cipher design will not use any “known hard problems” from modern 
    cryptography.
 
 
 Features:
+---------
+- Defends against weaknesses in the Vigenère Cipher (especially weak keys.)
 
-- This cipher will use a multiple keys and key derivation function (KDF) to 
-   defend against partial discovery of keys.
-- This cipher will flatten letter frequency distribution to prevent plaintext 
+- This cipher uses a multiple keys and key derivation function (KDF) to defend
+   against partial discovery of keys.
+
+- This cipher flattens letter frequency distribution to prevent plaintext 
    characterization leaking into the ciphertext.
-- This cipher will use injective mapping between the message’s plaintext and 
-   glyphs to force any autocorrelation to zero.
-- Uses a stochastic Process to defeat known-plaintext attacks, and certain 
+
+- This cipher will use a stochastic mapping between the message’s plaintext and
+   ordered pairs (glyphs) from the matrix to force any autocorrelation to zero.
+
+- The stochastic mapping also defeat known-plaintext attacks, and certain 
    methods used to implement brute force attacks.
 
 
-Architecture/Design:
-
- - The cipher system consist of three cryptographic primitives
+Architecture:
+-------------
+ - The cipher system consist of three cryptographic primitives:
     1.) Key derivation function.
 
     2.) Encryption function.
-     2.1) Round 1 - Stochastic plaintext mapping
-     2.1) Round 2 - Coordinate encoding
-     2.1) Round 3 - Vigenère Cipher encryption
+     2.1) Round 1 - Stochastic Plaintext Mapping
+     2.1) Round 2 - Coordinate Encoding
+     2.1) Round 3 - Vigenère Cipher Encryption
 
     3.) Decryption function.
-     3.1) Round 1 - Vigenère Cipher decryption
-     3.1) Round 2 - Coordinate decoding
-     3.1) Round 3 - Plaintext lookup
+     3.1) Round 1 - Vigenère Cipher Decryption
+     3.1) Round 2 - Coordinate Decoding
+     3.1) Round 3 - Plaintext Lookup
+
+- Ciphertext = G2GA1-Encrypt(plaintext, k1, k2, k3)
+    plaintext: a string containing the plaintext to encrypt.
+    k1: a string containing the first key,
+    k2: an integer containing the second key (0 < k2 <= length of k1).
+    k3: a string containing the passphrase used to encrypt the encoded 
+         ordered pairs with the Vigenère Cipher.
+
+- Plaintext = G2GA1-Decrypt(ciphertext, k1, k2, k3)
+    ciphertext: a string containing the ciphertext to decrypt.
+    k1: a string containing the first key,
+    k2: an integer containing the second key (0 < k2 <= length of k1).
+    k3: a string containing the passphrase used to decrypt the encoded 
+         ordered pairs with the Vigenère Cipher.
+
+- All string data is processed in monocase English (no punctuation,) and k3 is 
+   input base 16.
 
 
 Key Derivation Function (KDF)
 --------------------------------------------------------------------------------
 
-- The KDF generates a matrix using the characters from the first key as entries
-- The number of columns in this matrix is determined by the second key.
+The G2GA1 KDF is used to generate a dynamic matrix of character indexes from the
+ k1 and k2 keys.
+
+The matrix can be described as follows:
+
+- The KDF generates a matrix using the characters from the first key as entries.
+
+- The number of columns in this matrix is equal to the second key.
+
 - The number of rows in this matrix is dependent upon the second key and the 
    length of the message.
-- If the length of the message for the cipher is not divisible by the value of 
-   the second key, the final row of the message will be padded by the required 
-   amount of characters from the beginning of the key in order to make the 
-   length of the message for the cipher divisible by the second key.
-- During encryption of a message, the KDF will verify that the first key 
-   contains at least one occurrence of each character in the alphabet in the 
-   message so that the function mapping of characters to the first key is 
-   surjective.
 
 
 Encryption
 --------------------------------------------------------------------------------
 
-- All string data is processed in monocase English
-- The message is a string containing the plaintext to encrypt
-- k1 is the string containing the first key
-- k2 is an integer containing the second key where 0 < k2 <= length of k1
-- k3 is a string containing the passphrase used to encrypt the encoded
+G2GA1 encryption consists of the following three rounds:
 
-Round I: “Stochastic Plaintext Mapping”
+
+Round 1: “Stochastic Plaintext Mapping”
+---------------------------------------
+
 - In round one, the encryption algorithm maps each character from the plaintext 
-   message to an entry in the matrix generated from the KDF.
-- Ordered Pair (Row, Column) from the n’th ocurrence 
+   message to a glyph (represented as an ordered pair) in the matrix 
+   generated by the KDF.
 
-Round II: “Coordinate Encoding”
-- The ordered pairs string from Round 1 will be encoded where 0-9 is mapped to 
-   A-J respectively.
-- All commas will be mapped to a random character between K-Z by a random 
-   number generator.
+- The actual glyph used is chosen randomly (from the set of ordered pairs that
+   represent the letter in the matrix.)
 
-Round III: “Vigenere Cipher Encryption"
-- Round III encrypts the string generated from the encRound2 function with k3 to
-   produce the resulting output for the encryption algorithm.
+- The mapping functions verifies that each letter from the plaintext has a 
+   surjective mapping to the of glyphs.
+
+- Verify that the first key contains at least one occurrence of each character 
+   in the alphabet used to create the plaintext. 
+
+
+Round 2: “Coordinate Encoding”
+-------------------------------
+
+- The ordered pairs string from Round 1 will be encoded based on the following
+   rules:
+
+  ‘0’ -> ‘A’      ‘5’ -> ‘F’
+  ‘1’ -> ‘B’      ‘6’ -> ‘G’
+  ‘2’ -> ‘C’      ‘7’ -> ‘H’
+  ‘3’ -> ‘D’      ‘8’ -> ‘I’
+  ‘4’ -> ‘E’      ‘9’ -> ‘J’
+
+- Encode each element's delimiter, designated by a ',', with by a randomly 
+   chosen character from ’K’ to 'Z'.
+
+
+Round 3: “Vigenere Cipher Encryption"
+-------------------------------------
+
+- Round 3 encrypts the encoded ordered pair string generated from Round 2 
+   with k3 to produce the resulting ciphertext output for the encryption 
+   algorithm.
 
 
 Decryption
 --------------------------------------------------------------------------------
 
-Round I - “Vigenere Cipher Decryption”
-- Round I decrypts the ciphertext with the third key, k3 to produce ordered pair
-   strings used in round 2.
+G2GA1 Decryption consists of the following three rounds:
 
-Round II - “Coordinate Decoding”
-- Characters “A-J” will be decoded to “0-9” respectively.
-- Any character from K-Z will be decoded as a “,”.
 
-Round III - “Plaintext LookUp”
-- Round 3 processes the strings of ordered pairs produced by round 2.
-- Each ordered pair is processed to the corresponding plaintext character.
-- The plaintext characters are appended to a string this becomes the output of
+Round 1 - “Vigenere Cipher Decryption”
+--------------------------------------
+
+- Round 1 decrypts the ciphertext with the third key, k3, with the Vigenère 
+   Cipher to produce the encoded ordered pair string used in Round 2.
+
+
+Round 2 - “Coordinate Decoding”
+-------------------------------
+
+- The encoded ordered pairs string from Round 1 will be decoded based on the 
+   following rules:
+
+  ‘A’ -> ‘0’      ‘F’ -> ‘5’
+  ‘B’ -> ‘1’      ‘G’ -> ‘6’
+  ‘C’ -> ‘2’      ‘H’ -> ‘7’
+  ‘D’ -> ‘3’      ‘I’ -> ‘8'
+  ‘E’ -> ‘4’      ‘J’ -> ‘9’
+
+- Each element is delimited by a character from ’K’ to 'Z' and should be decoded
+   as a ','.
+
+
+Round 3 - “Plaintext LookUp”
+----------------------------
+
+- Round 3 processes the strings of ordered pairs produced by Round 2 to single
+   glyphs representing a letter in the matrix.
+
+- Each glyph is mapped to the corresponding letter in the matrix to produced 
+   a plaintext letter.
+
+- The plaintext letters are appended to a string which becomes the output of
    the decryption algorithm.
